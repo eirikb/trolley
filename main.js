@@ -29,11 +29,10 @@ $(function() {
 
     prettyPrint();
 
-    update();
-
-    function update() {
-        var time = new Date().getTime();
+    setInterval(function() {
+        var time = new Date().getTime(),
         delta = (time - lastUpdate) / 1000;
+
         lastUpdate = time;
         if (delta > 10) delta = 1 / fps;
 
@@ -41,11 +40,8 @@ $(function() {
             step(w, delta);
             w.DrawDebugData();
         });
-
-        window.setTimeout(function() {
-            update();
-        });
-    }
+    },
+    1000 / 30);
 
     function step(w, delta) {
         w.ClearForces();
