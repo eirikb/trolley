@@ -23,6 +23,10 @@ $(function() {
         $(this).hide();
     });
 
+    $('.re-run').click(function() {
+        $(this).parent().parent().find('.play').click();
+    });
+
     prettyPrint();
 
     update();
@@ -38,7 +42,7 @@ $(function() {
             w.DrawDebugData();
         });
 
-        updateTimeout = window.setTimeout(function() {
+        window.setTimeout(function() {
             update();
         });
     }
