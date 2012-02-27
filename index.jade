@@ -1,0 +1,52 @@
+!!! 5
+head
+  title Trolley
+  meta(charset='utf-8')
+  link(rel='stylesheet', href='css/bootstrap.min.css')
+  link(rel='stylesheet', href='google-code-prettify/prettify.css')
+  script(src='jquery.min.js')
+  script(src='js/bootstrap.js')
+  script(src='google-code-prettify/prettify.js')
+  script(src='box2d.min.js')
+  script(src='trolley.js')
+  script(src='main.js')
+  style
+    .play {
+      position: absolute;
+      margin-left: 0px;
+      width: 300px;
+      height: 200px;
+    }
+body
+  .container
+    header
+      h1 Trolley - Box2D utility
+    .row
+      .span6
+        pre.prettyprint.lang-js.linenums
+          ol
+            li
+            li trolley.init();
+            li trolley.body(0, 0, true).box(50, 1).box();
+            li trolley.body(10, 10).box(2, 2);
+            li
+      .span6
+        button.btn.well.span5.play 
+          | Run example
+          i.icon-play
+        canvas(width='300px', height='200px')
+    hr
+    .row
+      .span6
+        pre.prettyprint.lang-js.linenums
+          ol
+            li
+            li trolley.init();
+            li trolley.body(0, 0, true).box(50, 1).box();
+            li trolley.body(10, 10).box(2, 2);
+            li
+      .span6
+        button.btn.well.span5.play 
+          | Run example
+          i.icon-play
+        canvas(width='300px', height='200px')
