@@ -19,34 +19,19 @@ head
     }
 body
   .container
-    header
+    header.page-header
       h1 Trolley - Box2D utility
-    .row
-      .span6
-        pre.prettyprint.lang-js.linenums
-          ol
-            li
-            li trolley.init();
-            li trolley.body(0, 0, true).box(50, 1).box();
-            li trolley.body(10, 10).box(2, 2);
-            li
-      .span6
-        button.btn.well.span5.play 
-          | Run example
-          i.icon-play
-        canvas(width='300px', height='200px')
-    hr
-    .row
-      .span6
-        pre.prettyprint.lang-js.linenums
-          ol
-            li
-            li trolley.init();
-            li trolley.body(0, 0, true).box(50, 1).box();
-            li trolley.body(10, 10).box(2, 2);
-            li
-      .span6
-        button.btn.well.span5.play 
-          | Run example
-          i.icon-play
-        canvas(width='300px', height='200px')
+    for example in examples
+      .row
+        .span6
+          pre.prettyprint.lang-js.linenums
+            ol(contenteditable=true)
+              li
+              for line in example
+                li=line
+        .span6
+          button.btn.well.span5.play 
+            | Run example
+            i.icon-play
+          canvas(width='300px', height='200px')
+      hr
