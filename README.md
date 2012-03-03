@@ -8,10 +8,17 @@ There seems to be [a bunch](http://gamedev.stackexchange.com/questions/7765/are-
 Trolley is currently using [HBehrens/box2d.js](https://github.com/HBehrens/box2d.js), it is a decent version, including [compiler scripts](https://github.com/HBehrens/box2d.js/blob/master/build.sh).  
 Another version that could have been used is [thinkpixellab/box2d](https://github.com/thinkpixellab/pl/tree/master/src/box2d)(pl/scr/box2d now), but it is lacking build scripts.
 
+### Benefits
+
+*  Your write less code.
+*  Featureless so most solutions are the same.
+*  No need to change your code if new/different (and better) ports of Box2D emerge (trolley must adapt).
+
 Usage
 ---
 
 ```trolley.body(x, y, isStatic)``` returns a Box2D body, every function under this returns this body for chaining.  
+```trolley.body(x, y, options)``` returns a non-static Box2D with given options.
 ```.box(width, height, options)``` creates a box within the body with a given width and height.  
 ```.box(localPositionX, localPositionY, width, height, options)``` creates a body within the body at a given position.  
 ```.circle(radius, options)``` creates a circle within the body.   
