@@ -2,7 +2,7 @@ Trolley
 ===
 
 Utility for [Box2D.js](https://github.com/HBehrens/box2d.js).  
-The main idea of Trolley is to interface the _currently and seemingly best_ port of Box2D and making it easier for developers to create objects in a Box2D world.
+The main idea of Trolley is to interface the _current and seemingly best_ port of Box2D and making it easier for developers to create objects in a Box2D world.
 
 There seems to be [a bunch](http://gamedev.stackexchange.com/questions/7765/are-there-any-alternative-js-ports-of-box2d) of different ports of Box2D to JS.
 Trolley is currently using [HBehrens/box2d.js](https://github.com/HBehrens/box2d.js), it is a decent version, including [compiler scripts](https://github.com/HBehrens/box2d.js/blob/master/build.sh).  
