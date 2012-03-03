@@ -2,11 +2,11 @@ Trolley
 ===
 
 Utility for [Box2D.js](https://github.com/HBehrens/box2d.js).  
-There seems to be [a bunch](http://gamedev.stackexchange.com/questions/7765/are-there-any-alternative-js-ports-of-box2d) of different ports of Box2D to JS.
-[thinkpixellab / box2d](https://github.com/thinkpixellab/pl/tree/master/src/box2d) seems to be a very decent version, although bound to Google Closure.
-I have no idea where [HBehrens / box2d.js](https://github.com/HBehrens/box2d.js) got its source from but it seems to work well, and it has the [compiler scripts](https://github.com/HBehrens/box2d.js/blob/master/build.sh) ready (could probably submodule from thinkpixellab / pl / src / box2d, but it works).
-
 The main idea of Trolley is to interface the _currently and seemingly best_ port of Box2D and making it easier for developers to create objects in a Box2D world.
+
+There seems to be [a bunch](http://gamedev.stackexchange.com/questions/7765/are-there-any-alternative-js-ports-of-box2d) of different ports of Box2D to JS.
+Trolley is currently using [HBehrens/box2d.js](https://github.com/HBehrens/box2d.js), it is a decent version, including [compiler scripts](https://github.com/HBehrens/box2d.js/blob/master/build.sh).  
+Another version that could have been used is [thinkpixellab/box2d](https://github.com/thinkpixellab/pl/tree/master/src/box2d)(pl/scr/box2d now), but it is lacking build scripts.
 
 Usage
 ---
