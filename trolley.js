@@ -18,16 +18,19 @@ trolley = (function() {
     }
 
     function body(x, y, isStatic) {
+        var options;
         if (arguments.length < 2) throw 'body needs x and y';
         return (function() {
             var self = this,
             bodyDef = new b2BodyDef();
 
-            if (isStatic) {
+            if (typeof isStatic === 'boolean' && isStatic) {
                 bodyDef.type = b2Body.b2_staticBody;
             } else {
                 bodyDef.type = b2Body.b2_dynamicBody;
             }
+            // If isStatic is actually a object of options
+            if (typeof isStatic === 'object') exp(bodyDef, isStatic);
             bodyDef.position.Set(x, y);
             self.body = self.b = world.CreateBody(bodyDef);
 
