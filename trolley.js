@@ -11,13 +11,14 @@ trolley = (function() {
         return a;
     }
 
-    function init() {
+    function init(w) {
         world = new b2World(new b2Vec2(0.0, - 9.81), true);
         world.SetWarmStarting(true);
         return world;
     }
 
     function body(x, y, isStatic) {
+        if (arguments.length < 2) throw 'body needs x and y';
         return (function() {
             var self = this,
             bodyDef = new b2BodyDef();
@@ -37,60 +38,40 @@ trolley = (function() {
                 });
                 exp(fixtureDef, options);
                 fixtureDef.shape = shape;
-		        self.body.CreateFixture(fixtureDef);
+                var f = self.body.CreateFixture(fixtureDef);
                 return self;
             }
 
             self.box = function(localX, localY, width, height, options) {
-                if (arguments.length === 3) options = width;
-                if (arguments.length >= 2) {
-                    height = localY;
+                if (arguments.length < 2) throw 'box must have width and height';
+                if (arguments.length < 4) {
+                    options = width;
                     width = localX;
-                } else if (arguments.length === 1) {
-                    options = localX;
+                    height = localY;
+                    localX = localY = 0;
                 }
-
                 var shape = new b2PolygonShape.AsBox(width, height);
+                shape.m_vertices.forEach(function(v) {
+                    v.x += localX;
+                    v.y += localY;
+                });
                 return fixture(shape, options);
             };
             self.circle = function(localX, localY, radius, options) {
-                if (arguments.length  === 2) {
+                if (arguments.length < 1) throw 'circle must have radius';
+                if (arguments.length < 3) {
                     options = localY;
                     radius = localX;
-                } else if (arguments.length === 1) {
-                    radius = localX;
+                    localX = localY = 0;
                 }
                 var shape = new b2CircleShape(radius);
+                shape.SetLocalPosition(new b2Vec2(localX, localY));
                 return fixture(shape, options);
             };
 
             return self;
         } ());
     }
-
-    link = function(b1, b2) {
-        var jd = new box2d.RevoluteJointDef();
-        jd.anchorPoint.Set(b1.m_position.x, b1.m_position.y + 1);
-        jd.body1 = b1;
-        jd.body2 = b2;
-        trolley.world.CreateJoint(jd);
-    };
-
-    createBridge = function(x, y, width) {
-        var b1 = trolley.body(trolley.world, x, y).box(5, 2).create(),
-        i = 1,
-        b2;
-        for (; i < 10; i++) {
-            b2 = trolley.body(x + (i * 15), y).box(5, 2, {
-                density: 20,
-                friction: 0.5
-            }).create();
-            trolley.link(b1, b2);
-            b1 = b2;
-        }
-        b2 = trolley.body(x + (i * 15), y).box(5, 2).create();
-        trolley.link(b1, b2);
-    };
 
     return {
         init: init,
