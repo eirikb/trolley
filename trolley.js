@@ -43,6 +43,7 @@ trolley = (function() {
             }
 
             self.box = function(localX, localY, width, height, options) {
+                var midW, midH, shape;
                 if (arguments.length < 2) throw 'box must have width and height';
                 if (arguments.length < 4) {
                     options = width;
@@ -50,7 +51,11 @@ trolley = (function() {
                     height = localY;
                     localX = localY = 0;
                 }
-                var shape = new b2PolygonShape.AsBox(width, height);
+                midW = width / 2;
+                midH = height / 2;
+                localX += midW;
+                localY += midH;
+                shape = new b2PolygonShape.AsBox(midW, midH);
                 shape.m_vertices.forEach(function(v) {
                     v.x += localX;
                     v.y += localY;
@@ -58,13 +63,17 @@ trolley = (function() {
                 return fixture(shape, options);
             };
             self.circle = function(localX, localY, radius, options) {
+                var midR, shape;
                 if (arguments.length < 1) throw 'circle must have radius';
                 if (arguments.length < 3) {
                     options = localY;
                     radius = localX;
                     localX = localY = 0;
                 }
-                var shape = new b2CircleShape(radius);
+                midR = radius / 2;
+                shape = new b2CircleShape(midR);
+                localX += midR;
+                localY += midR;
                 shape.SetLocalPosition(new b2Vec2(localX, localY));
                 return fixture(shape, options);
             };
