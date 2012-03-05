@@ -6,7 +6,7 @@ The main idea of Trolley is to interface the _current and seemingly best_ port o
 
 There seems to be [a bunch](http://gamedev.stackexchange.com/questions/7765/are-there-any-alternative-js-ports-of-box2d) of different ports of Box2D to JS.
 Trolley is currently using [HBehrens/box2d.js](https://github.com/HBehrens/box2d.js), it is a decent version, including [compiler scripts](https://github.com/HBehrens/box2d.js/blob/master/build.sh).  
-Another version that could have been used is [thinkpixellab/box2d](https://github.com/thinkpixellab/pl/tree/master/src/box2d)(pl/scr/box2d now), but it is lacking build scripts.
+Another version that could have been used is [thinkpixellab/box2d](https://github.com/thinkpixellab/pl/tree/master/src/box2d)(pl/src/box2d now), but it is lacking build scripts.
 
 ### Benefits
 
