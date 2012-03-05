@@ -10,7 +10,9 @@ Another version that could have been used is [thinkpixellab/box2d](https://githu
 
 ### Benefits
 
+*  Easier to start with Box2D
 *  Your write less code.
+*  Sane coordinate system
 *  Featureless so most solutions are the same.
 *  No need to change your code if new/different (and better) ports of Box2D emerge (trolley must adapt).
 
