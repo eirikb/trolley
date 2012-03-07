@@ -65,6 +65,21 @@ trolley = (function() {
                 });
                 return fixture(shape, options);
             };
+            self.polygon = function(localX, localY, polygons, options) {
+                var midR, shape;
+                if (arguments.length < 1) throw 'polygon must have an array of arrays';
+                if (arguments.length < 3) {
+                    options = localY;
+                    polygons = localX;
+                    localX = localY = 0;
+                }
+                polygons = polygons.map(function(p) {
+                    return new b2Vec2(p[0], p[1]);
+                });
+                console.log(polygons)
+                shape = new b2PolygonShape.AsArray(polygons, polygons.length);
+                return fixture(shape, options);
+            };
             self.circle = function(localX, localY, radius, options) {
                 var midR, shape;
                 if (arguments.length < 1) throw 'circle must have radius';
@@ -81,6 +96,39 @@ trolley = (function() {
                 return fixture(shape, options);
             };
 
+            self.b = box;
+            self.c = circle;
+            return self;
+        } ());
+    }
+
+    function joint(a, ax, ay, b, bx, by) {
+        var ap, bp;
+        if (arguments.length < 2) throw 'joint must have two bodies';
+        if (arguments.length < 4) {
+            b = ax;
+            ax = ay = bx = by = 0;
+        }
+        if (arguments.length === 4) {
+            if (typeof ax === 'number') {
+                bx = by = 0;
+            } else {
+                by = b;
+                bx = ay;
+                b = ax;
+            }
+        }
+        ap = a.GetPosition();
+        bp = b.GetPosition();
+        ax += ap.x;
+        ay += ap.y;
+        bx += bp.x;
+        by += bp.y;
+        return (function() {
+            var self = this,
+            jointDef = new b2DistanceJointDef();
+            jointDef.Initialize(a, b, new b2Vec2(ax, ay), new b2Vec2(bx, by));
+            world.CreateJoint(jointDef);
             return self;
         } ());
     }
@@ -88,7 +136,8 @@ trolley = (function() {
     return {
         init: init,
         body: body,
-        b: body
+        b: body,
+        joint: joint
     };
 })();
 
