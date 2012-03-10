@@ -76,7 +76,6 @@ trolley = (function() {
                 polygons = polygons.map(function(p) {
                     return new b2Vec2(p[0], p[1]);
                 });
-                console.log(polygons)
                 shape = new b2PolygonShape.AsArray(polygons, polygons.length);
                 return fixture(shape, options);
             };
@@ -102,33 +101,29 @@ trolley = (function() {
         } ());
     }
 
-    function joint(a, ax, ay, b, bx, by) {
-        var ap, bp;
-        if (arguments.length < 2) throw 'joint must have two bodies';
-        if (arguments.length < 4) {
-            b = ax;
-            ax = ay = bx = by = 0;
-        }
-        if (arguments.length === 4) {
-            if (typeof ax === 'number') {
-                bx = by = 0;
-            } else {
-                by = b;
-                bx = ay;
-                b = ax;
-            }
-        }
-        ap = a.GetPosition();
-        bp = b.GetPosition();
-        ax += ap.x;
-        ay += ap.y;
-        bx += bp.x;
-        by += bp.y;
+    function joint() {
         return (function() {
             var self = this,
+            bodies = [],
             jointDef = new b2DistanceJointDef();
-            jointDef.Initialize(a, b, new b2Vec2(ax, ay), new b2Vec2(bx, by));
-            world.CreateJoint(jointDef);
+
+            function addBody(b, bx, by) {
+                var bp = b.GetPosition();
+                if (arguments.length === 1) {
+                    bx = by = 0;
+                }
+                bx += bp.x;
+                by += bp.y;
+                bodies.push([b, bx, by]);
+                if (bodies.length === 2) {
+                    self.joint = jointDef.Initialize(bodies[0][0], bodies[1][0], new b2Vec2(bodies[0][1], bodies[0][2]), new b2Vec2(bodies[1][1], bodies[1][2]));
+                    world.CreateJoint(jointDef);
+                }
+                return self;
+            }
+
+            self.a = self.b = addBody;
+
             return self;
         } ());
     }
