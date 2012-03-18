@@ -18,10 +18,12 @@ trolley = (function() {
     }
 
     function body(x, y, isStatic) {
-        var options;
         if (arguments.length < 2) throw 'body needs x and y';
         return (function() {
             var body, self = this,
+            fixtures = [],
+            maxWidth = 0,
+            maxHeight = 0,
             bodyDef = new b2BodyDef();
 
             if (typeof isStatic === 'boolean' && isStatic) {
@@ -32,12 +34,6 @@ trolley = (function() {
 
             // If isStatic is actually a object of options
             if (typeof isStatic === 'object') exp(bodyDef, isStatic);
-            bodyDef.position.Set(x, y);
-            body = self.body = self.b = world.CreateBody(bodyDef);
-
-            // Helpers
-            body.width = 0;
-            body.height = 0;
 
             function fixture(shape, options) {
                 fixtureDef = new b2FixtureDef();
@@ -46,8 +42,15 @@ trolley = (function() {
                 });
                 exp(fixtureDef, options);
                 fixtureDef.shape = shape;
-                var f = self.body.CreateFixture(fixtureDef);
+                fixtures.push(fixtureDef);
                 return self;
+            }
+
+            function updateExpand(localX, localY, width, height) {
+                localX = Math.abs(localX);
+                localY = Math.abs(localY);
+                if (localX + width > maxWidth) maxWidth = localX + width;
+                if (localY + height > maxHeight) maxHeight = localY + height;
             }
 
             self.box = function(localX, localY, width, height, options) {
@@ -60,14 +63,13 @@ trolley = (function() {
                     localX = localY = 0;
                 }
 
-                if (localX + width > body.width) body.width = localX + width;
-                if (localY + height > body.height) body.height = localY + height;
+                updateExpand(localX, localY, width, height);
 
-                midW = width / 2;
-                midH = height / 2;
-                localX += midW;
-                localY += midH;
-                shape = new b2PolygonShape.AsBox(midW, midH);
+                width /= 2;
+                height /= 2;
+                localX += width;
+                localY += height;
+                shape = new b2PolygonShape.AsBox(width, height);
                 shape.m_vertices.forEach(function(v) {
                     v.x += localX;
                     v.y += localY;
@@ -100,15 +102,28 @@ trolley = (function() {
                     localX = localY = 0;
                 }
 
-                if (localX + radius > body.width) body.width = localX + radius;
-                if (localY + radius > body.height) body.height = localY + radius;
+                updateExpand(localX, localY, radius, radius);
 
-                midR = radius / 2;
-                shape = new b2CircleShape(midR);
-                localX += midR;
-                localY += midR;
+                radius /= 2;
+                localX += radius;
+                localY += radius;
+                shape = new b2CircleShape(radius);
                 shape.SetLocalPosition(new b2Vec2(localX, localY));
                 return fixture(shape, options);
+            };
+
+            self.create = function() {
+                var body, midW = maxWidth / 2,
+                midH = maxHeight / 2;
+
+                bodyDef.position.Set(x + midW, y + midH);
+                body = world.CreateBody(bodyDef);
+                body.width = maxWidth;
+                body.height = maxHeight;
+                fixtures.forEach(function(fixtureDef) {
+                    sody.CreateFixture(fixtureDef);
+                });
+                return body;
             };
 
             self.b = box;
