@@ -21,7 +21,7 @@ trolley = (function() {
         var options;
         if (arguments.length < 2) throw 'body needs x and y';
         return (function() {
-            var self = this,
+            var body, self = this,
             bodyDef = new b2BodyDef();
 
             if (typeof isStatic === 'boolean' && isStatic) {
@@ -29,10 +29,15 @@ trolley = (function() {
             } else {
                 bodyDef.type = b2Body.b2_dynamicBody;
             }
+
             // If isStatic is actually a object of options
             if (typeof isStatic === 'object') exp(bodyDef, isStatic);
             bodyDef.position.Set(x, y);
-            self.body = self.b = world.CreateBody(bodyDef);
+            body = self.body = self.b = world.CreateBody(bodyDef);
+
+            // Helpers
+            body.width = 0;
+            body.height = 0;
 
             function fixture(shape, options) {
                 fixtureDef = new b2FixtureDef();
@@ -54,6 +59,10 @@ trolley = (function() {
                     height = localY;
                     localX = localY = 0;
                 }
+
+                if (localX + width > body.width) body.width = localX + width;
+                if (localY + height > body.height) body.height = localY + height;
+
                 midW = width / 2;
                 midH = height / 2;
                 localX += midW;
@@ -65,6 +74,8 @@ trolley = (function() {
                 });
                 return fixture(shape, options);
             };
+
+            // This is le bork
             self.polygon = function(localX, localY, polygons, options) {
                 var midR, shape;
                 if (arguments.length < 1) throw 'polygon must have an array of arrays';
@@ -79,6 +90,7 @@ trolley = (function() {
                 shape = new b2PolygonShape.AsArray(polygons, polygons.length);
                 return fixture(shape, options);
             };
+
             self.circle = function(localX, localY, radius, options) {
                 var midR, shape;
                 if (arguments.length < 1) throw 'circle must have radius';
@@ -87,6 +99,10 @@ trolley = (function() {
                     radius = localX;
                     localX = localY = 0;
                 }
+
+                if (localX + radius > body.width) body.width = localX + radius;
+                if (localY + radius > body.height) body.height = localY + radius;
+
                 midR = radius / 2;
                 shape = new b2CircleShape(midR);
                 localX += midR;
