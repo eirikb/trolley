@@ -1,7 +1,8 @@
 trolley = (function() {
     var world;
 
-    function exp(a, b) {
+    // Helper functions
+    function extend(a, b) {
         var opt;
         for (opt in b) {
             if (b.hasOwnProperty(opt)) {
@@ -11,159 +12,275 @@ trolley = (function() {
         return a;
     }
 
+    function extendDefaults(a, b) {
+        var opt;
+        for (opt in b) {
+            if (b.hasOwnProperty(opt)) {
+                if (typeof a[opt] === 'undefined') a[opt] = b[opt];
+            }
+        }
+        return a;
+    }
+
+    // Array.prototype.forEach ish
+    function each(arr, cb) {
+        var i, count = 0;
+
+        arr = [].concat(arr);
+        for (i = 0; i < arr.length; i++) {
+            if (typeof arr[i] !== 'undefined') {
+                cb(arr[i], count);
+                count++;
+            }
+        }
+    }
+
+    function calcPosition(localXOrY, size, totalSize) {
+        return localXOrY + size / 2 - totalSize / 2;
+    }
+
     function init(w) {
-        world = new b2World(new b2Vec2(0.0, - 9.81), true);
-        world.SetWarmStarting(true);
+        world = w;
+        // Create a new world if not given
+        if (!world) {
+            world = new b2World(new b2Vec2(0.0, - 9.81), true);
+            world.SetWarmStarting(true);
+        }
         return world;
     }
 
     function body(x, y, isStatic) {
-        if (arguments.length < 2) throw 'body needs x and y';
-        return (function() {
-            var body, self = this,
-            fixtures = [],
-            maxWidth = 0,
-            maxHeight = 0,
-            bodyDef = new b2BodyDef();
+        var wrapper = {
+            boxes: [],
+            circles: [],
+            width: 0,
+            height: 0,
+            bodyDef: new b2BodyDef()
+        };
 
-            if (typeof isStatic === 'boolean' && isStatic) {
-                bodyDef.type = b2Body.b2_staticBody;
-            } else {
-                bodyDef.type = b2Body.b2_dynamicBody;
+        // If it's an object
+        if (arguments.length === 1) {
+            isStatic = x.isStatic;
+            y = x.y;
+            x = x.x;
+        }
+
+        if (typeof isStatic === 'boolean' && isStatic) {
+            wrapper.bodyDef.type = b2Body.b2_staticBody;
+        } else {
+            wrapper.bodyDef.type = b2Body.b2_dynamicBody;
+        }
+
+        // If isStatic is actually an object of options
+        if (typeof isStatic === 'object') extend(wrapper.bodyDef, isStatic);
+
+        function updateExpand(localX, localY, width, height) {
+            localX = Math.abs(localX);
+            localY = Math.abs(localY);
+            if (localX + width > wrapper.width) wrapper.width = localX + width;
+            if (localY + height > wrapper.height) wrapper.height = localY + height;
+        }
+
+        wrapper.box = function(localX, localY, width, height, options) {
+            var box;
+            if (arguments.length < 1) throw 'box must have arguments, at least object or width, height';
+            if (arguments.length < 4) {
+                options = width;
+                width = localX;
+                height = localY;
+                localX = localY = 0;
             }
+            if (arguments.length === 1) {
+                box = localX;
+            } else {
+                box = {
+                    localX: localX,
+                    localY: localY,
+                    width: width,
+                    height: height,
+                    options: options
+                };
+            }
+            wrapper.boxes.push(box);
+            updateExpand(localX, localY, width, height);
+            return wrapper;
+        };
 
-            // If isStatic is actually a object of options
-            if (typeof isStatic === 'object') exp(bodyDef, isStatic);
+        wrapper.circle = function(localX, localY, size, options) {
+            var circle;
+            if (arguments.length < 1) throw 'circle must have arguments, at least object or size';
+            // First argument was an object, set that as circle
+            if (arguments.length === 1 && typeof localX !== 'number') circle = localX;
+            if (arguments.length < 3) {
+                options = localY;
+                size = localX;
+                localX = localY = 0;
+            }
+            if (!circle) {
+                circle = {
+                    localX: localX,
+                    localY: localY,
+                    size: size,
+                    options: options
+                };
+            }
+            wrapper.circles.push(circle);
+            updateExpand(localX, localY, size, size);
+            return wrapper;
+        };
 
-            function fixture(shape, options) {
+        wrapper.create = function() {
+            var body, w = wrapper.width / 2,
+            h = wrapper.height / 2;
+
+            wrapper.bodyDef.position.Set(x + w, y + h);
+            body = world.CreateBody(wrapper.bodyDef);
+
+            function createFixture(shape, options) {
                 fixtureDef = new b2FixtureDef();
-                exp(fixtureDef, {
+                extend(fixtureDef, {
                     density: 1
                 });
-                exp(fixtureDef, options);
+                extend(fixtureDef, options);
                 fixtureDef.shape = shape;
-                fixtures.push(fixtureDef);
-                return self;
+                body.CreateFixture(fixtureDef);
             }
 
-            function updateExpand(localX, localY, width, height) {
-                localX = Math.abs(localX);
-                localY = Math.abs(localY);
-                if (localX + width > maxWidth) maxWidth = localX + width;
-                if (localY + height > maxHeight) maxHeight = localY + height;
-            }
+            each(wrapper.boxes, function(box) {
+                var shape = new b2PolygonShape.AsBox(box.width / 2, box.height / 2),
+                diffX = calcPosition(box.localX, box.width, wrapper.width),
+                diffY = calcPosition(box.localY, box.height, wrapper.height);
 
-            self.box = function(localX, localY, width, height, options) {
-                var midW, midH, shape;
-                if (arguments.length < 2) throw 'box must have width and height';
-                if (arguments.length < 4) {
-                    options = width;
-                    width = localX;
-                    height = localY;
-                    localX = localY = 0;
-                }
-
-                updateExpand(localX, localY, width, height);
-
-                width /= 2;
-                height /= 2;
-                localX += width;
-                localY += height;
-                shape = new b2PolygonShape.AsBox(width, height);
                 shape.m_vertices.forEach(function(v) {
-                    v.x += localX;
-                    v.y += localY;
+                    v.x += diffX;
+                    v.y += diffY;
                 });
-                return fixture(shape, options);
-            };
+                createFixture(shape, box.options);
+            });
 
-            // This is le bork
-            self.polygon = function(localX, localY, polygons, options) {
-                var midR, shape;
-                if (arguments.length < 1) throw 'polygon must have an array of arrays';
-                if (arguments.length < 3) {
-                    options = localY;
-                    polygons = localX;
-                    localX = localY = 0;
-                }
-                polygons = polygons.map(function(p) {
-                    return new b2Vec2(p[0], p[1]);
-                });
-                shape = new b2PolygonShape.AsArray(polygons, polygons.length);
-                return fixture(shape, options);
-            };
+            each(wrapper.circles, function(circle) {
+                var shape = new b2CircleShape(circle.size / 2),
+                cx = calcPosition(circle.localX, circle.size, wrapper.width),
+                cy = calcPosition(circle.localY, circle.size, wrapper.height);
 
-            self.circle = function(localX, localY, radius, options) {
-                var midR, shape;
-                if (arguments.length < 1) throw 'circle must have radius';
-                if (arguments.length < 3) {
-                    options = localY;
-                    radius = localX;
-                    localX = localY = 0;
-                }
+                shape.SetLocalPosition(new b2Vec2(cx, cy));
+                createFixture(shape, circle.options);
+            });
 
-                updateExpand(localX, localY, radius, radius);
+            // TODO: Don't augment, cache with Array can be too slow
+            body.width = wrapper.width;
+            body.height = wrapper.height;
+            return body;
+        };
 
-                radius /= 2;
-                localX += radius;
-                localY += radius;
-                shape = new b2CircleShape(radius);
-                shape.SetLocalPosition(new b2Vec2(localX, localY));
-                return fixture(shape, options);
-            };
-
-            self.create = function() {
-                var body, midW = maxWidth / 2,
-                midH = maxHeight / 2;
-
-                bodyDef.position.Set(x + midW, y + midH);
-                body = world.CreateBody(bodyDef);
-                body.width = maxWidth;
-                body.height = maxHeight;
-                fixtures.forEach(function(fixtureDef) {
-                    sody.CreateFixture(fixtureDef);
-                });
-                return body;
-            };
-
-            self.b = box;
-            self.c = circle;
-            return self;
-        } ());
+        wrapper.b = wrapper.box;
+        wrapper.c = wrapper.circle;
+        return wrapper;
     }
 
     function joint() {
-        return (function() {
-            var self = this,
-            bodies = [],
-            jointDef = new b2DistanceJointDef();
+        var wrapper = {},
+        bodies = [],
+        jointDef = new b2DistanceJointDef();
 
-            function addBody(b, bx, by) {
-                var bp = b.GetPosition();
-                if (arguments.length === 1) {
-                    bx = by = 0;
-                }
-                bx += bp.x;
-                by += bp.y;
-                bodies.push([b, bx, by]);
-                if (bodies.length === 2) {
-                    self.joint = jointDef.Initialize(bodies[0][0], bodies[1][0], new b2Vec2(bodies[0][1], bodies[0][2]), new b2Vec2(bodies[1][1], bodies[1][2]));
-                    world.CreateJoint(jointDef);
-                }
-                return self;
+        function addBody(b, bx, by) {
+            var b1vec, b2vec, bp = b.GetPosition();
+            if (arguments.length === 1) {
+                bx = by = 0;
             }
+            bx = calcPosition(bx, 0, b.width);
+            by = calcPosition(by, 0, b.width);
+            bx += bp.x;
+            by += bp.y;
+            bodies.push([b, bx, by]);
+            if (bodies.length === 2) {
+                b1vec = new b2Vec2(bodies[0][1], bodies[0][2]);
+                b2vec = new b2Vec2(bodies[1][1], bodies[1][2]);
+                wrapper.joint = jointDef.Initialize(bodies[0][0], bodies[1][0], b1vec, b2vec);
+                world.CreateJoint(jointDef);
+            }
+            return wrapper;
+        }
 
-            self.a = self.b = addBody;
+        wrapper.a = wrapper.b = addBody;
 
-            return self;
-        } ());
+        return wrapper;
+    }
+
+    function position(b) {
+        // Get the actual position and ref (contains width and height of body)
+        var origoVec = b.GetPosition();
+        if (typeof b.width === 'undefined' || typeof b.height === 'undefined') {
+            // TODO: Calclulate width and height
+            b.width = 0;
+            b.height = 0;
+        }
+        return {
+            x: origoVec.x - ref.width / 2,
+            y: origoVec.y - ref.height / 2,
+            origo: {
+                x: origoVec.x,
+                y: origoVec.y
+            },
+            width: ref.width,
+            height: ref.height
+        };
+    }
+
+    // [{x:0,y:0,isStatic:false,options:{},boxes:[{x:0,y:0,width:1,height:1,options{}],circles:...}]
+    function build(objs) {
+        var wrapper = {
+            bodyWraps: []
+        };
+
+        wrapper.create = function() {
+            each(wrapper.bodyWraps, function(bwrap) {
+                bwrap.create();
+            });
+        };
+
+        each(objs, function(b) {
+            var bwrap;
+
+            b = extendDefaults(b, {
+                x: 0,
+                y: 0,
+                isStatic: false,
+                options: {}
+            });
+            bwrap = body(b);
+            each(b.boxes, function(box) {
+                box = extendDefaults(box, {
+                    x: 0,
+                    y: 0,
+                    width: 1,
+                    height: 1,
+                    options: {}
+                });
+                bwrap.box(box);
+            });
+            each(b.circles, function(circle) {
+                circle = extendDefaults(circle, {
+                    x: 0,
+                    y: 0,
+                    size: 1,
+                    options: {}
+                });
+                bwrap.circle(circle);
+            });
+            wrapper.bodyWraps.push(bwrap);
+        });
+        return wrapper;
     }
 
     return {
         init: init,
         body: body,
         b: body,
-        joint: joint
+        joint: joint,
+        position: position,
+        pos: position,
+        build: build
     };
 })();
 
