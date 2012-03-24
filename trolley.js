@@ -216,14 +216,14 @@ trolley = (function() {
             b.height = 0;
         }
         return {
-            x: origoVec.x - ref.width / 2,
-            y: origoVec.y - ref.height / 2,
+            x: origoVec.x - b.width / 2,
+            y: origoVec.y - b.height / 2,
             origo: {
                 x: origoVec.x,
                 y: origoVec.y
             },
-            width: ref.width,
-            height: ref.height
+            width: b.width,
+            height: b.height
         };
     }
 
