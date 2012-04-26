@@ -233,9 +233,11 @@ trolley = (function() {
         };
 
         wrapper.create = function() {
+            var bodies = [];
             each(wrapper.bodyWraps, function(bwrap) {
-                bwrap.create();
+                bodies.push(bwrap.create());
             });
+            return bodies;
         };
 
         each(objs, function(b) {
