@@ -35,8 +35,8 @@ trolley = (function() {
         }
     }
 
-    function calcPosition(localXOrY, size, totalSize) {
-        return localXOrY + size / 2 - totalSize / 2;
+    function calcPosition(xOrY, size, totalSize) {
+        return xOrY + size / 2 - totalSize / 2;
     }
 
     function init(w) {
@@ -74,58 +74,57 @@ trolley = (function() {
         // If isStatic is actually an object of options
         if (typeof isStatic === 'object') extend(wrapper.bodyDef, isStatic);
 
-        function updateExpand(localX, localY, width, height) {
-            localX = Math.abs(localX);
-            localY = Math.abs(localY);
-            if (localX + width > wrapper.width) wrapper.width = localX + width;
-            if (localY + height > wrapper.height) wrapper.height = localY + height;
+        function updateExpand(obj) {
+            obj.x = Math.abs(obj.x);
+            obj.y = Math.abs(obj.y);
+            if (obj.x + obj.width > wrapper.width) wrapper.width = obj.x + obj.width;
+            if (obj.y + obj.height > wrapper.height) wrapper.height = obj.y + obj.height;
         }
 
-        wrapper.box = function(localX, localY, width, height, options) {
+        wrapper.box = function(x, y, width, height, options) {
             var box;
             if (arguments.length < 1) throw 'box must have arguments, at least object or width, height';
+            if (arguments.length === 1) box = x;
             if (arguments.length < 4) {
                 options = width;
-                width = localX;
-                height = localY;
-                localX = localY = 0;
+                width = x;
+                height = y;
+                x = y = 0;
             }
-            if (arguments.length === 1) {
-                box = localX;
-            } else {
+            if (!box) {
                 box = {
-                    localX: localX,
-                    localY: localY,
+                    x: x,
+                    y: y,
                     width: width,
                     height: height,
                     options: options
                 };
             }
             wrapper.boxes.push(box);
-            updateExpand(localX, localY, width, height);
+            updateExpand(box);
             return wrapper;
         };
 
-        wrapper.circle = function(localX, localY, size, options) {
+        wrapper.circle = function(x, y, size, options) {
             var circle;
             if (arguments.length < 1) throw 'circle must have arguments, at least object or size';
             // First argument was an object, set that as circle
-            if (arguments.length === 1 && typeof localX !== 'number') circle = localX;
+            if (arguments.length === 1 && typeof x !== 'number') circle = x;
             if (arguments.length < 3) {
-                options = localY;
-                size = localX;
-                localX = localY = 0;
+                options = y;
+                size = x;
+                x = y = 0;
             }
             if (!circle) {
                 circle = {
-                    localX: localX,
-                    localY: localY,
+                    x: x,
+                    y: y,
                     size: size,
                     options: options
                 };
             }
             wrapper.circles.push(circle);
-            updateExpand(localX, localY, size, size);
+            updateExpand(circle);
             return wrapper;
         };
 
@@ -148,8 +147,8 @@ trolley = (function() {
 
             each(wrapper.boxes, function(box) {
                 var shape = new b2PolygonShape.AsBox(box.width / 2, box.height / 2),
-                diffX = calcPosition(box.localX, box.width, wrapper.width),
-                diffY = calcPosition(box.localY, box.height, wrapper.height);
+                diffX = calcPosition(box.x, box.width, wrapper.width),
+                diffY = calcPosition(box.y, box.height, wrapper.height);
 
                 shape.m_vertices.forEach(function(v) {
                     v.x += diffX;
@@ -160,8 +159,8 @@ trolley = (function() {
 
             each(wrapper.circles, function(circle) {
                 var shape = new b2CircleShape(circle.size / 2),
-                cx = calcPosition(circle.localX, circle.size, wrapper.width),
-                cy = calcPosition(circle.localY, circle.size, wrapper.height);
+                cx = calcPosition(circle.x, circle.size, wrapper.width),
+                cy = calcPosition(circle.y, circle.size, wrapper.height);
 
                 shape.SetLocalPosition(new b2Vec2(cx, cy));
                 createFixture(shape, circle.options);
