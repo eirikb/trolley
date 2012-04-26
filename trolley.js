@@ -60,6 +60,7 @@ trolley = (function() {
 
         // If it's an object
         if (arguments.length === 1) {
+            extend(wrapper.bodyDef, x.options);
             isStatic = x.isStatic;
             y = x.y;
             x = x.x;
