@@ -75,11 +75,11 @@ trolley = (function() {
         // If isStatic is actually an object of options
         if (typeof isStatic === 'object') extend(wrapper.bodyDef, isStatic);
 
-        function updateExpand(obj) {
+        function updateExpand(obj, width, height) {
             obj.x = Math.abs(obj.x);
             obj.y = Math.abs(obj.y);
-            if (obj.x + obj.width > wrapper.width) wrapper.width = obj.x + obj.width;
-            if (obj.y + obj.height > wrapper.height) wrapper.height = obj.y + obj.height;
+            if (obj.x + width > wrapper.width) wrapper.width = obj.x + width;
+            if (obj.y + height > wrapper.height) wrapper.height = obj.y + height;
         }
 
         wrapper.box = function(x, y, width, height, options) {
@@ -102,7 +102,7 @@ trolley = (function() {
                 };
             }
             wrapper.boxes.push(box);
-            updateExpand(box);
+            updateExpand(box, box.width, box.height);
             return wrapper;
         };
 
@@ -125,7 +125,7 @@ trolley = (function() {
                 };
             }
             wrapper.circles.push(circle);
-            updateExpand(circle);
+            updateExpand(circle, circle.size, circle.size);
             return wrapper;
         };
 
