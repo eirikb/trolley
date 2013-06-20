@@ -20,10 +20,7 @@ Usage
 ---
 
 ```var trolley = new Trolley();```
-```JavaScript
-trolley.body(x, y, isStatic);
-```
- _-_ returns a Box2D body, every function under this returns this body for chaining.  
+```trolley.body(x, y, isStatic);``` _-_ returns a Box2D body, every function under this returns this body for chaining.  
 ```trolley.body(x, y, options);```  _-_ returns a non-static Box2D with given options.
 ```.box(width, height, options);```  _-_ creates a box within the body with a given width and height.  
 ```.box(localPositionX, localPositionY, width, height, options);```  _-_ creates a body within the body at a given position.  
