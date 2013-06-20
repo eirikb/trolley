@@ -1,4 +1,4 @@
-[Trolley](http://eirikb.github.com/trolley)
+[Trolley](http://eirikb.github.io/trolley)
 ===
 
 Utility for [Box2D.js](https://github.com/HBehrens/box2d.js).  
@@ -54,8 +54,9 @@ trolley.body(15, 10, {
 References to normal Box2D objects:
 
 ```JavaScript
-var world = trolley.init();
-var body = trolley.body(0, 0).box(1, 1).body;
+var t = new Trolley();
+var world = t.world;
+var body = t.body(0, 0).box(1, 1).body;
 
 world.DestroyBody(body);
 ```
