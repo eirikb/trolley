@@ -11,7 +11,7 @@ Another version that could have been used is [thinkpixellab/box2d](https://githu
 ### Benefits
 
 *  Easier to start with Box2D.
-*  Your write less code.
+*  You write less code.
 *  Sane coordinate system.
 *  Featureless so most solutions are the same.
 *  No need to change your code if new/different (and better) ports of Box2D emerge (trolley must adapt).
@@ -19,12 +19,14 @@ Another version that could have been used is [thinkpixellab/box2d](https://githu
 Usage
 ---
 
-```trolley.body(x, y, isStatic)```  _-_ returns a Box2D body, every function under this returns this body for chaining.  
-```trolley.body(x, y, options)```  _-_ returns a non-static Box2D with given options.
-```.box(width, height, options)```  _-_ creates a box within the body with a given width and height.  
-```.box(localPositionX, localPositionY, width, height, options)```  _-_ creates a body within the body at a given position.  
-```.circle(radius, options)```  _-_ creates a circle within the body.   
-```.circle(localPostionX, localPositionY, radius, options)``` _-_ creates a circle within the body at given position.  
+```var trolley = new Trolley();```
+```JavaScript
+trolley.body(x, y, isStatic);``` _-_ returns a Box2D body, every function under this returns this body for chaining.  
+```trolley.body(x, y, options);```  _-_ returns a non-static Box2D with given options.
+```.box(width, height, options);```  _-_ creates a box within the body with a given width and height.  
+```.box(localPositionX, localPositionY, width, height, options);```  _-_ creates a body within the body at a given position.  
+```.circle(radius, options);```  _-_ creates a circle within the body.   
+```.circle(localPostionX, localPositionY, radius, options);``` _-_ creates a circle within the body at given position.  
 
 _options_ can contain Box2D-specific values such as density and friction.
 
@@ -36,8 +38,7 @@ Examples
 Create a static 'ground', a box and a 'player':
 
 ```JavaScript
-// world
-trolley.init();
+var trolley = new Trolley();
 // static 'ground'
 trolley.body(0, 0, true).box(50, 1);
 // just a box
