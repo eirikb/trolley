@@ -1,0 +1,28 @@
+{
+  "name": "@eirikb/trolley",
+  "version": "1.0.2",
+  "description": "Kickstart your Box2D experience for web",
+  "main": "dist/trolley.min.js",
+  "scripts": {
+    "build:dev": "webpack --run-dev --watch",
+    "build:prod": "webpack --run-prod",
+    "test": "ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eirikb/trolley.git"
+  },
+  "author": "Eirik Brandtzæg <eirikb@eirikb.no>",
+  "license": "zlib",
+  "bugs": {
+    "url": "https://github.com/eirikb/trolley/issues"
+  },
+  "homepage": "https://github.com/eirikb/trolley#readme",
+  "devDependencies": {
+    "ava": "0.25.0",
+    "exports-loader": "0.7.0",
+    "imports-loader": "0.8.0",
+    "webpack": "4.16.0",
+    "webpack-command": "0.4.1"
+  }
+}
